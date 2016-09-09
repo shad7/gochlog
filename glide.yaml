@@ -1,0 +1,13 @@
+package: github.com/shad7/gochlog
+import:
+- package: github.com/Sirupsen/logrus
+  version: ^0.10.0
+- package: github.com/dnephin/cobra
+  version: ^1.4.1
+- package: github.com/spf13/viper
+- package: github.com/davecgh/go-spew
+  version: ^1.0.0
+  subpackages:
+  - spew
+- package: github.com/imdario/mergo
+  version: ^0.2.2

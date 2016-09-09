@@ -1,0 +1,1 @@
+{{.HEADER}}{{range .COMMITS}}{{.}}{{end}}{{.FOOTER}}
