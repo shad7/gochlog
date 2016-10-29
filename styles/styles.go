@@ -6,8 +6,14 @@ import (
 	"github.com/shad7/gochlog/types"
 )
 
+// Styler abstracts the parsing git logs and formatting of a Change Log
+type Styler interface {
+	GetParserOptions() *types.ParserOptions
+	GetFormatterOptions() *types.FormatterOptions
+}
+
 // StyleConfigHook provides a callback function to create a specific Sytle
-type StyleConfigHook func(interface{}) (types.Styler, error)
+type StyleConfigHook func(interface{}) (Styler, error)
 
 var availableStyles = []string{}
 var configHooks = map[string]StyleConfigHook{}
@@ -25,7 +31,7 @@ func GetStylers() []string {
 }
 
 // GetStyler provides a specific Styler instance
-func GetStyler(name string) (types.Styler, error) {
+func GetStyler(name string) (Styler, error) {
 	if hook, ok := configHooks[name]; ok {
 		return hook(nil)
 	}

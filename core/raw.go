@@ -1,12 +1,11 @@
 package core
 
 import (
-	"encoding/json"
-	"fmt"
 	"os/exec"
 	"regexp"
+	"strings"
 
-	gitci "github.com/shad7/gochlog/types"
+	"github.com/shad7/gochlog/types"
 )
 
 func filterTags(tagRegexp string, rawTags string) []string {
@@ -15,21 +14,32 @@ func filterTags(tagRegexp string, rawTags string) []string {
 }
 
 // fetchChanges retrieves the raw commit messages as a list of Commit
-func fetchChanges(opts *gitci.GitOptions) ([]gitci.Commit, error) {
+func fetchChanges(opts *types.GitOptions) ([]types.Commit, error) {
 
-	format := "--format={\"shorthash\":\"%h\", \"hash\":\"%H\", \"author\":\"%an\", \"email\":\"%ae\", \"tags\":[\"%d\"], \"date\":\"%ad\", \"subject\":\"%s\", \"body\":\"%b\"},"
+	const numField = 8
+	format := "--format=format:%h%x00%H%x00%an%x00%ae%x00%ad%x00%s%x00%b%x00%D%x00"
 	dtformat := "--date=short"
 
 	var out []byte
 	out, _ = exec.Command("git", "log", format, dtformat).Output()
 
-	// convert from individual lines of json to a list of json
-	re := regexp.MustCompile(`,\n$`)
-	outs := fmt.Sprintf("[%v]", re.ReplaceAllString(string(out), ""))
+	fields := strings.Split(strings.TrimSpace(string(out)), "\x00")
+	for i, field := range fields {
+		fields[i] = strings.TrimLeft(field, "\r\n")
+	}
 
-	var commits []gitci.Commit
-	if err := json.Unmarshal([]byte(outs), &commits); err != nil {
-		return nil, err
+	var commits []types.Commit
+	for i := 0; i+numField <= len(fields); i += numField {
+		commits = append(commits, types.Commit{
+			ShortHash: fields[i],
+			Hash:      fields[i+1],
+			Author:    fields[i+2],
+			Email:     fields[i+3],
+			Date:      fields[i+4],
+			Subject:   fields[i+5],
+			Message:   fields[i+6],
+			Tags:      strings.Split(fields[i+7], ","),
+		})
 	}
 
 	// make sure only the requested tags are included

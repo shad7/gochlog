@@ -5,6 +5,7 @@ import (
 
 	// log "github.com/Sirupsen/logrus"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/shad7/gochlog/styles"
 	"github.com/shad7/gochlog/types"
 
@@ -31,6 +32,34 @@ func GenerateChangeLog(style string, gopts *types.GitOptions, popts *types.Parse
 	if err != nil {
 		return err
 	}
-	fmt.Println(commits)
+	fmt.Println(spew.Sdump(commits))
+
+	mpopts, err := types.ApplyDefaultParserOptions(popts, styler.GetParserOptions())
+	if err != nil {
+		return err
+	}
+	fmt.Println(spew.Sdump(mpopts))
+
+	data, err := parse(mpopts, commits)
+	if err != nil {
+		return err
+	}
+
+	mfopts, err := types.ApplyDefaultFormatterOptions(fopts, styler.GetFormatterOptions())
+	if err != nil {
+		return err
+	}
+	fmt.Println(spew.Sdump(mfopts))
+
+	data, err = format(mfopts, data)
+	if err != nil {
+		return err
+	}
+
+	err = write(data)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

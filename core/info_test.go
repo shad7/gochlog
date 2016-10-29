@@ -7,7 +7,10 @@ func TestGetVersionDisplay(t *testing.T) {
 		name string
 		want string
 	}{
-	// TODO: Add test cases.
+		{
+			name: "Display Version",
+			want: ProductName + " version " + Version + "-" + VersionPrerelease + "\n",
+		},
 	}
 	for _, tt := range tests {
 		if got := GetVersionDisplay(); got != tt.want {
@@ -17,11 +20,16 @@ func TestGetVersionDisplay(t *testing.T) {
 }
 
 func Test_getHumanVersion(t *testing.T) {
+	GitCommit = "f3b4a47+CHANGES"
+	GitDescribe = "f3b4a47"
 	tests := []struct {
 		name string
 		want string
 	}{
-	// TODO: Add test cases.
+		{
+			name: "Display Git variables defined",
+			want: "f3b4a47-dev (f3b4a47+CHANGES)",
+		},
 	}
 	for _, tt := range tests {
 		if got := getHumanVersion(); got != tt.want {

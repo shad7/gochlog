@@ -9,9 +9,9 @@ IMPORT_PATH := github.com/shad7/gochlog
 VERSION?=$(shell awk -F\" '/^const Version/ { print $$2; exit }' core/info.go)
 
 # Get the git commit
-GIT_COMMIT="$(shell git rev-parse --short HEAD)"
-GIT_DIRTY="$(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)"
-GIT_DESCRIBE="$(shell git describe --tags --always)"
+GIT_COMMIT=$(shell git rev-parse --short HEAD)
+GIT_DIRTY=$(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
+GIT_DESCRIBE=$(shell git describe --tags --always)
 LDFLAGS := -X ${IMPORT_PATH}/core.GitCommit='${GIT_COMMIT}${GIT_DIRTY}' -X ${IMPORT_PATH}/core.GitDescribe='${GIT_DESCRIBE}'
 
 ROOT := /gochlog
@@ -46,7 +46,7 @@ clean:
 # default top-level target
 build: build/dev
 
-build/dev:  build/image_build generate check */*.go vendor
+build/dev:  generate check */*.go
 	@mkdir -p bin/
 	${DOCKERBUILD} go build -o bin/${ROOT} -ldflags "$(LDFLAGS)"
 
@@ -71,7 +71,7 @@ add-dep: build/image_build
 generate: vendor
 	${DOCKERNOVENDOR} bash ./scripts/gen.sh
 
-format: vendor
+format:
 	${DOCKERNOVENDOR} bash ./scripts/fmt.sh
 
 lint: format
@@ -92,7 +92,7 @@ cover: check
 
 # compile into binary for the current version across multiple different
 # platforms (architectures and OSes)
-xcompile: test
+xcompile: check
 	@rm -rf build/
 	@mkdir -p build
 	${DOCKERBUILD} bash ./scripts/xcompile.sh
@@ -107,6 +107,10 @@ docs: check
 	@rm -rf docs/
 	@mkdir -p docs/
 	${DOCKERNOVENDOR} bash ./scripts/docs.sh
+
+# ------ Docker Machine Helpers
+mount:
+	docker-machine ssh default 'sudo mkdir -p /gochlog ; sudo mount -t vboxsf gochlog /gochlog'
 
 # ------ Docker Helpers
 drma:

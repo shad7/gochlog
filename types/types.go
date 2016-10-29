@@ -2,14 +2,14 @@ package types
 
 // Commit contains a parsed git commit
 type Commit struct {
-	ShortHash string   `json:"shorthash"`
-	Hash      string   `json:"hash"`
-	Author    string   `json:"author"`
-	Email     string   `json:"email"`
-	Date      string   `json:"date"`
-	Subject   string   `json:"subject"`
-	Message   string   `json:"body"`
-	Tags      []string `json:"tags"`
+	ShortHash string
+	Hash      string
+	Author    string
+	Email     string
+	Date      string
+	Subject   string
+	Message   string
+	Tags      []string
 }
 
 // GitOptions control the scope of git commits
@@ -23,15 +23,15 @@ type GitOptions struct {
 // ParserOptions controls the parsing of git commits
 type ParserOptions struct {
 	SubjectPattern   string
-	SubjectMap       map[string]string
+	SubjectParts     []string
 	ReferenceActions []string
 	IssuePrefixes    []string
 	NoteKeywords     []string
 	FieldPattern     string
 	RevertPattern    string
-	RevertMap        map[string]string
+	RevertParts      []string
 	MergePattern     string
-	MergeMap         map[string]string
+	MergeParts       []string
 }
 
 // FormatterOptions controls the formatting of git commits
