@@ -1,7 +1,6 @@
 #!/bin/bash
 
 ROOT_DIR=$(pwd)
-PROJECT=$(basename ${ROOT_DIR})
 
 # Zip and copy to the release dir
 echo "==> Packaging..."

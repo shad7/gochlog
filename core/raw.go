@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -20,8 +21,16 @@ func fetchChanges(opts *types.GitOptions) ([]types.Commit, error) {
 	format := "--format=format:%h%x00%H%x00%an%x00%ae%x00%ad%x00%s%x00%b%x00%D%x00"
 	dtformat := "--date=short"
 
+	gitcmd, err := exec.LookPath("git")
+	if err != nil {
+		return nil, fmt.Errorf("git must be available and on the PATH")
+	}
+
 	var out []byte
-	out, _ = exec.Command("git", "log", format, dtformat).Output()
+	out, err = exec.Command(gitcmd, "log", format, dtformat).Output()
+	if err != nil {
+		return nil, err
+	}
 
 	fields := strings.Split(strings.TrimSpace(string(out)), "\x00")
 	for i, field := range fields {
